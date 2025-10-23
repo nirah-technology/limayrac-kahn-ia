@@ -22,6 +22,7 @@ class Car:
     turbo_count: int
     millage_in_km: int
     zero_to_hundred: float
+    transmission_type: str
     is_started: bool = False
 
     def start(self):
@@ -57,34 +58,34 @@ def generate_car() -> Car:
     if manufacturer in ["Renault", "Citroen", "Peugeot"]:
         category = "citadine"
         engine_size = round(uniform(0.8, 1.6), 1)  # Litres
-    elif manufacturer in ["Mercedes", "Audi", "BMW"]:
-        category = "berline"
-        engine_size = round(uniform(1.5, 3.0), 1)
-    else:
-        category = "sportive"
-        engine_size = round(uniform(3.0, 6.5), 1)
-
-    # --- Règles de génération réaliste par catégorie ---
-    if category == "citadine":
-        power = randint(60, 140)
-        weight = randint(950, 1300)
+        doors_number = choice([3, 4, 5])
+        power = randint(60, 120)
+        weight = randint(900, 1200)
         aerodynamic_level = uniform(0.2, 0.35)
         # Plus de chances d'avoir de l'essence pour les citadines
         fuel_type = choice(["Gasoline"] * 7 + ["Diesel"] * 2 + ["Electric"])
-    elif category == "berline":
+        transmission_type = choice(["Manual"] * 5 + ["Automatic"])
+    elif manufacturer in ["Mercedes", "Audi", "BMW"]:
+        category = "berline"
+        engine_size = round(uniform(1.5, 3.0), 1)
+        doors_number = choice([3, 4, 5])
         power = randint(150, 350)
         weight = randint(1400, 2000)
         aerodynamic_level = uniform(0.3, 0.45)
         fuel_type = choice(["Gasoline"] * 5 + ["Diesel"] * 3 + ["Electric"] * 2)
-    else:  # sportive
+        transmission_type = choice(["Manual"] * 3 + ["Automatic"] * 2)
+    else:
+        doors_number = choice([2, 3, 4])
+        category = "sportive"
+        engine_size = round(uniform(3.0, 6.5), 1)
         power = randint(400, 1200)
         weight = randint(1100, 1800)
         aerodynamic_level = uniform(0.3, 0.4)
         fuel_type = choice(["Gasoline"] * 8 + ["Electric"] * 2)
+        transmission_type = choice(["Manual"] + ["Automatic"] * 3)
 
     # --- Calculs dérivés cohérents ---
     # Torque plus réaliste basé sur la taille du moteur et la puissance
-    torque = int(power * uniform(0.8, 1.2) * engine_size)
     torque = int(power * (engine_size / 2.5) * uniform(0.8, 1.1))
 
 
@@ -105,14 +106,6 @@ def generate_car() -> Car:
         else:
             turbo_count = randint(2, 4) if manufacturer in ["Ferrari", "Bugatti", "Koenigsegg"] else choice([1, 2])
 
-    # Transmission (simplifiée)
-    if category == "citadine":
-        transmission_type = choice(["Manual"] * 5 + ["Automatic"])
-    elif category == "berline":
-        transmission_type = choice(["Manual"] * 3 + ["Automatic"] * 2)
-    else:  # sportive
-        transmission_type = choice(["Manual"] + ["Automatic"] * 3)
-
     # --- Millage avec une distribution plus réaliste ---
     age = 2024 - year
     if age > 0:
@@ -123,8 +116,6 @@ def generate_car() -> Car:
     else:
         millage_in_km = 0
 
-    # max speed ≈ 40 * log(power) (simplifié)
-    # max_speed = int(min(100 + power * 0.5, 500))
     max_speed = int(min(120 + power * (0.55 - aerodynamic_level / 2), 500))
 
 
@@ -140,16 +131,13 @@ def generate_car() -> Car:
     power_to_weight = power / weight  # ex: 0.08 = citadine, 0.5 = supercar
     zero_to_hundred = round(2.5 / (power_to_weight ** 0.5), 1)
 
-
-
-
     # Retourner l'objet Car
     return Car(
         manufacturer, model, year, power, torque, max_speed,
         fuel_efficiency, fuel_type, doors_number, weight,
-        aerodynamic_level, turbo_count, millage_in_km, zero_to_hundred
+        aerodynamic_level, turbo_count, millage_in_km, zero_to_hundred,
+        transmission_type
     )
-
 
 class CarsLoader:
     @staticmethod
@@ -173,7 +161,7 @@ class CarsLoader:
 
 def main():
 
-    for _ in range(10):
+    for _ in range(100):
         car: Car = generate_car()
         print(car)
 
