@@ -1,0 +1,2 @@
+manufacturer,model,power,year,torque,max_speed,fuel_efficiency,fuel_type,is_started,doors_number,weigth,aerodynamic_level,turbo_count,millage_in_km,zero_to_hundred
+Dacia,Sandera Stepway,90,2017,100,210,0.5,Gasoline,False,5,1000,0,1,180000,8.2
