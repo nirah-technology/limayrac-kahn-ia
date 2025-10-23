@@ -75,7 +75,7 @@ def generate_car() -> Car:
         fuel_type = choice(["Gasoline"] * 5 + ["Diesel"] * 3 + ["Electric"] * 2)
         transmission_type = choice(["Manual"] * 3 + ["Automatic"] * 2)
     else:
-        doors_number = choice([2, 3, 4])
+        doors_number = choice([2, 3])
         category = "sportive"
         engine_size = round(uniform(3.0, 6.5), 1)
         power = randint(400, 1200)
@@ -142,15 +142,19 @@ def generate_car() -> Car:
 class CarsLoader:
     @staticmethod
     def save(car: Car, csv_file: Path):
-        with open("cars.csv", "w") as csv_file:
-            writer: DictWriter = DictWriter(csv_file, fieldnames=car.__dict__.keys())
-            writer.writeheader()
+        contains_lines: bool = False
+        with open(csv_file, "r") as ro_file:
+            contains_lines = len(ro_file.readlines()) > 0
+        with open(csv_file, "a") as file:
+            writer: DictWriter = DictWriter(file, fieldnames=car.__dict__.keys())
+            if (not contains_lines):
+                writer.writeheader()
             writer.writerow(car.__dict__)
     
     @staticmethod
     def load(csv_file: Path) -> list[Car]:
-        with open("cars.csv", "r") as csv_file:
-            reader: DictReader = DictReader(csv_file)
+        with open(csv_file, "r") as file:
+            reader: DictReader = DictReader(file)
             cars: list[Car] = []
             for row in reader:
                 print(row)
@@ -160,11 +164,10 @@ class CarsLoader:
 
 
 def main():
-
-    for _ in range(100):
+    csv_file = Path("cars.csv")
+    for _ in range(1_000):
         car: Car = generate_car()
-        print(car)
-
+        CarsLoader.save(car, csv_file)
 
 
 
