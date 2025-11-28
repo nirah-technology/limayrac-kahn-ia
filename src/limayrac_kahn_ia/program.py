@@ -1,10 +1,14 @@
+import statistics
+import matplotlib.pyplot as plt
 
-from pathlib import Path
+import pandas
+
+
 from csv import DictReader, DictWriter
+from dataclasses import dataclass
+from pathlib import Path
 from random import randint, random, uniform, choice
 
-
-from dataclasses import dataclass
 
 @dataclass
 class Car:
@@ -157,7 +161,6 @@ class CarsLoader:
             reader: DictReader = DictReader(file)
             cars: list[Car] = []
             for row in reader:
-                print(row)
                 car: Car = Car(**row)
                 cars.append(car)
             return cars
@@ -165,9 +168,55 @@ class CarsLoader:
 
 def main():
     csv_file = Path("cars.csv")
+    garage: list[Car] = []
     for _ in range(1_000):
         car: Car = generate_car()
-        CarsLoader.save(car, csv_file)
+        garage.append(car)
+    #     CarsLoader.save(car, csv_file)
+
+    garage_as_dict = [car.__dict__ for car in garage]
+    data_frame = pandas.DataFrame(data=garage_as_dict)
+    # print(data_frame)
+    # print(data_frame.info())
+
+    # Liste toute 
+    #   les clio ou C-Class 
+    #   qui ont plus de 100 cv et 
+    #   qui font du 0-100 en moins de 8 secondes
+
+    echantillon = data_frame[
+        (data_frame["model"].isin(["C-Class", "Clio"])) &
+        (data_frame["power"] > 100) &
+        (data_frame["zero_to_hundred"] <= 8)
+    ]
+
+    echantillon = echantillon.sort_values(by="year", ascending=False)
+
+    print(echantillon.describe())
+
+
+    # print(data_frame[(data_frame["model"].isin(["C-Class", "Clio"])) & (data_frame["zero_to_hundred"] < 8)])
+    # print(data_frame.sort_values(by="year", ascending=True))
+
+    # print(data_frame.describe()["weight"]["count"])
+
+    # plt.hist(data_frame["zero_to_hundred"])
+    # plt.xlabel("0 à 100 km")
+    # plt.ylabel("Nombre de voitures")
+    # # plt.show()
+
+    # # plt.bar(data_frame["model"], data_frame["max_speed"])
+    
+    # # plt.scatter(data_frame["model"], data_frame["max_speed"])
+    # plt.bar(data_frame["model"], data_frame["weight"])
+    # plt.grid(True)
+
+    # plt.title("Vitesse max par model")
+    # plt.xlabel("Modele")
+    # plt.ylabel("VMax (km/h)")
+    # plt.show()
+
+    statistics.linear_regression()
 
 
 
