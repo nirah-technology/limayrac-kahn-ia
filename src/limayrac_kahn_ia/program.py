@@ -1,7 +1,10 @@
 import statistics
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+import sklearn.linear_model as linear_model
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import numpy as np
 import pandas
 
 
@@ -169,6 +172,7 @@ class CarsLoader:
 
 def main():
     csv_file = Path("cars.csv")
+    csv_file = pandas.read_csv("cars.csv")
     garage: list[Car] = []
     for _ in range(1_000):
         car: Car = generate_car()
@@ -177,6 +181,7 @@ def main():
 
     garage_as_dict = [car.__dict__ for car in garage]
     data_frame = pandas.DataFrame(data=garage_as_dict)
+    data_frame = pandas.read_csv("cars.csv")
     # print(data_frame)
     # print(data_frame.info())
 
@@ -217,8 +222,21 @@ def main():
     # plt.ylabel("VMax (km/h)")
     # plt.show()
 
+    # On veut mapper les marque et constructeur à des valeur numérique
+    manufacturers = {}
+    models = {}
+    for index, row in data_frame.iterrows():
+        if row["manufacturer"] not in manufacturers:
+            manufacturers[row["manufacturer"]] = len(manufacturers) + 1
+        if row["model"] not in models:
+            models[row["model"]] = len(models) + 1
+    data_frame["manufacturer"] = data_frame["manufacturer"].map(manufacturers)
+    data_frame["model"] = data_frame["model"].map(models)
+
+
     # Supprimer les colonnes Manufactureer et Model
-    data_frame = data_frame.drop(columns=["manufacturer", "model"])
+    # data_frame = data_frame.drop(columns=["manufacturer", "model"])
+
 
     # Remplacer Diesel et Essence par 1, 2
     data_frame["fuel_type"] = data_frame["fuel_type"].replace({"Diesel": 1, "Gasoline": 2, "Electric": 3})
@@ -230,7 +248,29 @@ def main():
     sns.heatmap(correlaton_matrix, annot=True)
     plt.show()
 
+    X = data_frame["power"].values
+    y = data_frame["max_speed"]
 
+    # découperer le dataaset en 70/30
+    # Données d'entraintement (70% du dataset)
+    print("SET")
+    print(len(train_test_split(X, y, data_frame, test_size=0.3, random_state=2)))
+
+    X_train, X_test, y_train, y_test, _, _ = train_test_split(X, y, data_frame, test_size=0.3, random_state=1)
+
+    model = linear_model.LinearRegression()
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    # Coefficient de détermination. Une valeur proche de 1 est souhaitée.
+    r2 = r2_score(X_test, y_test)
+    print(r2)
+    # Erreur quadeatique moyenne : mesure l'erreur moyenne des prédictions. Valeur minmale souhaitée
+    mse = mean_squared_error(y_test, y_pred)
+    print(mse)
+    rmse = np.sqrt(mse)
+    print(rmse)
+    
 
 
 if (__name__ == "__main__"):
