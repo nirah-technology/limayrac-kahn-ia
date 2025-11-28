@@ -1,5 +1,6 @@
 import statistics
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 import pandas
 
@@ -203,7 +204,7 @@ def main():
     # plt.hist(data_frame["zero_to_hundred"])
     # plt.xlabel("0 à 100 km")
     # plt.ylabel("Nombre de voitures")
-    # # plt.show()
+    # plt.show()
 
     # # plt.bar(data_frame["model"], data_frame["max_speed"])
     
@@ -216,7 +217,19 @@ def main():
     # plt.ylabel("VMax (km/h)")
     # plt.show()
 
-    statistics.linear_regression()
+    # Supprimer les colonnes Manufactureer et Model
+    data_frame = data_frame.drop(columns=["manufacturer", "model"])
+
+    # Remplacer Diesel et Essence par 1, 2
+    data_frame["fuel_type"] = data_frame["fuel_type"].replace({"Diesel": 1, "Gasoline": 2, "Electric": 3})
+    data_frame["transmission_type"] = data_frame["transmission_type"].replace({"Automatic": 1, "Manual": 2})
+
+    
+    correlaton_matrix = data_frame.corr()
+
+    sns.heatmap(correlaton_matrix, annot=True)
+    plt.show()
+
 
 
 
