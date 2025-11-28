@@ -269,7 +269,10 @@ def main():
     rmse = np.sqrt(mse)
     print(rmse)
 
-    print(X)
+    data = pandas.read_json('[{"torque": 10}]')
+    # print(data)
+    predicted_speed = model.predict(data)
+    print(predicted_speed)
     
 
 
