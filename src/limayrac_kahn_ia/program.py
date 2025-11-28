@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import sklearn.linear_model as linear_model
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, confusion_matrix
 import numpy as np
 import pandas
 
@@ -246,30 +246,30 @@ def main():
     correlaton_matrix = data_frame.corr()
 
     sns.heatmap(correlaton_matrix, annot=True)
-    plt.show()
+    # plt.show()
 
-    X = data_frame["power"].values
+    X = data_frame[["torque"]]
     y = data_frame["max_speed"]
 
     # découperer le dataaset en 70/30
     # Données d'entraintement (70% du dataset)
-    print("SET")
-    print(len(train_test_split(X, y, data_frame, test_size=0.3, random_state=2)))
 
-    X_train, X_test, y_train, y_test, _, _ = train_test_split(X, y, data_frame, test_size=0.3, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
 
     model = linear_model.LinearRegression()
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
     # Coefficient de détermination. Une valeur proche de 1 est souhaitée.
-    r2 = r2_score(X_test, y_test)
+    r2 = r2_score(y_test, y_pred)
     print(r2)
     # Erreur quadeatique moyenne : mesure l'erreur moyenne des prédictions. Valeur minmale souhaitée
     mse = mean_squared_error(y_test, y_pred)
     print(mse)
     rmse = np.sqrt(mse)
     print(rmse)
+
+    print(X)
     
 
 
